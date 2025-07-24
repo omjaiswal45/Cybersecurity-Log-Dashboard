@@ -7,7 +7,7 @@ const app = express();
 const PORT = 5000;
 
 app.use(cors({
-  origin:'https://your-frontend-domain.com'
+  origin:'https://cybersecurity-log-dashboard-4.onrender.com'
 }));
 
 // Load and parse log file
