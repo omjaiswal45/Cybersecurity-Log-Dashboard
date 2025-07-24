@@ -40,7 +40,7 @@ export default function LineChartCard() {
 
   return (
     <div className="bg-gray-900 p-6 rounded-xl shadow-md">
-      <h2 className="text-xl font-bold text-white mb-4">Events Trend Over Time</h2>
+    
       <ResponsiveContainer width="100%" height={300}>
         <LineChart
           data={data}
