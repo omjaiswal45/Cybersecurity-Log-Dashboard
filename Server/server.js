@@ -6,7 +6,9 @@ const path = require('path');
 const app = express();
 const PORT = 5000;
 
-app.use(cors());
+app.use(cors({
+  origin:'https://your-frontend-domain.com'
+}));
 
 // Load and parse log file
 const logs = JSON.parse(fs.readFileSync(path.join(__dirname, 'sample_siem_log.jsonl'), 'utf-8'));

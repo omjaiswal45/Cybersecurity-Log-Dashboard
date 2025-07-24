@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://cybersecurity-log-dashboard-3.onrender.com/api';
 
 export const fetchLogs = (page = 1, limit = 20) =>
   axios.get(`${API_BASE}/logs?page=${page}&limit=${limit}`);
