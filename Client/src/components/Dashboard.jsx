@@ -23,7 +23,7 @@ export default function Dashboard() {
   const [totalLogs, setTotalLogs] = useState(0);
 
   const [selectedEventTypes, setSelectedEventTypes] = useState([]);
-  const [showEventFilter, setShowEventFilter] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     fetchLogs(page + 1, rowsPerPage).then((res) => {
@@ -73,38 +73,44 @@ export default function Dashboard() {
       <div className="bg-white shadow-lg rounded-xl p-4 md:p-6">
         <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">Detailed Logs Table</h2>
 
-        <input
-          type="text"
-          placeholder="Search by username or event type"
-          className="border px-4 py-2 rounded mb-4 w-full"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+          <input
+            type="text"
+            placeholder="Search by username or event type"
+            className="border px-4 py-2 rounded w-full md:w-1/2"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
 
-        {/* Toggle Button */}
-        <button
-          className="mb-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
-          onClick={() => setShowEventFilter((prev) => !prev)}
-        >
-          {showEventFilter ? 'Hide Event Filters' : 'Filter Event Types'}
-        </button>
+          {/* Dropdown Filter */}
+          <div className="relative">
+            <div
+              onClick={() => setDropdownOpen((prev) => !prev)}
+              className="cursor-pointer px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+            >
+              Filter Event Types
+            </div>
 
-        {/* Checkboxes */}
-        {showEventFilter && (
-          <div className="mb-4 flex flex-wrap gap-4">
-            {eventTypes.map((type) => (
-              <label key={type} className="flex items-center gap-2 text-sm text-gray-700">
-                <input
-                  type="checkbox"
-                  checked={selectedEventTypes.includes(type)}
-                  onChange={() => handleCheckboxChange(type)}
-                  className="form-checkbox h-4 w-4 text-indigo-600"
-                />
-                {type}
-              </label>
-            ))}
+            {dropdownOpen && (
+              <div className="absolute right-0 z-20 mt-2 w-64 bg-white border rounded shadow-md max-h-60 overflow-y-auto">
+                {eventTypes.map((type) => (
+                  <label
+                    key={type}
+                    className="flex items-center px-4 py-2 text-sm text-gray-800 hover:bg-gray-100"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedEventTypes.includes(type)}
+                      onChange={() => handleCheckboxChange(type)}
+                      className="form-checkbox mr-2"
+                    />
+                    {type}
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Logs Table */}
         <div className="overflow-x-auto border rounded-lg">
