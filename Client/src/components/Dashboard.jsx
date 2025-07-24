@@ -68,38 +68,40 @@ export default function Dashboard() {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
 
-        {/* Responsive Table */}
+        {/* Responsive Table with Vertical Scroll and No Horizontal Scroll */}
         <div className="overflow-x-auto border rounded-lg">
-          <table className="min-w-full text-sm text-left text-gray-700">
-            <thead className="bg-indigo-100 text-indigo-800 sticky top-0 z-10">
-              <tr>
-                <th
-                  className="px-4 py-3 cursor-pointer select-none flex items-center gap-1 text-indigo-800 font-medium whitespace-nowrap"
-                  onClick={toggleSortOrder}
-                >
-                  Timestamp
-                  <span className="p-1">{sortOrder === 'asc' ? '▲' : '▼'}</span>
-                </th>
-                <th className="px-4 py-3 border whitespace-nowrap">Event Type</th>
-                <th className="px-4 py-3 border whitespace-nowrap">Username</th>
-                <th className="px-4 py-3 border whitespace-nowrap hidden md:table-cell">Source IP</th>
-                <th className="px-4 py-3 border whitespace-nowrap hidden md:table-cell">Destination IP</th>
-                <th className="px-4 py-3 border whitespace-nowrap hidden lg:table-cell">Details</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {sortedLogs.map((log, index) => (
-                <tr key={index} className="hover:bg-indigo-50 transition duration-150 ease-in-out">
-                  <td className="px-4 py-2 border whitespace-nowrap">{dayjs(log.timestamp).fromNow()}</td>
-                  <td className="px-4 py-2 border whitespace-nowrap">{log.event_type}</td>
-                  <td className="px-4 py-2 border whitespace-nowrap">{log.username}</td>
-                  <td className="px-4 py-2 border whitespace-nowrap hidden md:table-cell">{log.source_ip}</td>
-                  <td className="px-4 py-2 border whitespace-nowrap hidden md:table-cell">{log.destination_ip}</td>
-                  <td className="px-4 py-2 border whitespace-nowrap hidden lg:table-cell">{log.details}</td>
+          <div className="max-h-[450px] overflow-y-auto overflow-x-hidden">
+            <table className="min-w-full text-sm text-left text-gray-700 table-auto w-full">
+              <thead className="bg-indigo-100 text-indigo-800 sticky top-0 z-10">
+                <tr>
+                  <th
+                    className="px-4 py-3 cursor-pointer select-none flex items-center gap-1 text-indigo-800 font-medium whitespace-nowrap"
+                    onClick={toggleSortOrder}
+                  >
+                    Timestamp
+                    <span className="p-1">{sortOrder === 'asc' ? '▲' : '▼'}</span>
+                  </th>
+                  <th className="px-4 py-3 border whitespace-nowrap">Event Type</th>
+                  <th className="px-4 py-3 border whitespace-nowrap">Username</th>
+                  <th className="px-4 py-3 border whitespace-nowrap hidden md:table-cell">Source IP</th>
+                  <th className="px-4 py-3 border whitespace-nowrap hidden md:table-cell">Destination IP</th>
+                  <th className="px-4 py-3 border whitespace-nowrap hidden lg:table-cell">Details</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {sortedLogs.map((log, index) => (
+                  <tr key={index} className="hover:bg-indigo-50 transition duration-150 ease-in-out">
+                    <td className="px-4 py-2 border whitespace-nowrap">{dayjs(log.timestamp).fromNow()}</td>
+                    <td className="px-4 py-2 border whitespace-nowrap">{log.event_type}</td>
+                    <td className="px-4 py-2 border whitespace-nowrap">{log.username}</td>
+                    <td className="px-4 py-2 border whitespace-nowrap hidden md:table-cell">{log.source_ip}</td>
+                    <td className="px-4 py-2 border whitespace-nowrap hidden md:table-cell">{log.destination_ip}</td>
+                    <td className="px-4 py-2 border whitespace-nowrap hidden lg:table-cell">{log.details}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Pagination */}
@@ -139,9 +141,9 @@ export default function Dashboard() {
       </div>
 
       {/* Line Chart */}
-      <div className="bg-white shadow-lg rounded-xl p-4 md:p-6">
-        <h2 className="text-xl md:text-2xl font-bold mb-4">Events Trend Over Time</h2>
-        <div className="w-full h-[250px] sm:h-[300px]">
+      <div className="bg-white shadow-lg rounded-xl p-4 h-110 md:p-6">
+     
+        <div className="w-full h-[400px] sm:h-[300px]">
           <LineChartCard />
         </div>
       </div>

@@ -19,7 +19,7 @@ export default function LineChartCard() {
 
       const sortedData = entries
         .map(([hour, count]) => {
-          const dateObj = new Date(hour + ':00:00'); // ✅ Fix invalid date
+          const dateObj = new Date(hour + ':00:00'); 
           return {
             hour,
             count,
@@ -53,7 +53,7 @@ export default function LineChartCard() {
             angle={-45}
             textAnchor="end"
             interval={0}
-            height={60}
+            height={10}
           />
           <YAxis
             tick={{ fill: '#ccc', fontSize: 12 }}
