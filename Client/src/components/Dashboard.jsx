@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { fetchLogs, fetchEventCounts } from '../services/api';
 import {
   BarChart,
@@ -22,8 +22,10 @@ export default function Dashboard() {
   const [rowsPerPage, setRowsPerPage] = useState(20);
   const [totalLogs, setTotalLogs] = useState(0);
 
-  const [selectedEventTypes, setSelectedEventTypes] = useState([]);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  // Filter dropdown state
+  const [selectedTypes, setSelectedTypes] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     fetchLogs(page + 1, rowsPerPage).then((res) => {
@@ -33,8 +35,27 @@ export default function Dashboard() {
     fetchEventCounts().then((res) => setEventCounts(res.data));
   }, [page, rowsPerPage]);
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const toggleSortOrder = () => {
     setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+  };
+
+  const eventTypeOptions = [...new Set(logs.map(log => log.event_type))];
+
+  const toggleType = (type) => {
+    setSelectedTypes(prev =>
+      prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
+    );
   };
 
   const barChartData = Object.entries(eventCounts).map(([eventType, count]) => ({
@@ -42,24 +63,14 @@ export default function Dashboard() {
     count,
   }));
 
-  const eventTypes = [...new Set(logs.map((log) => log.event_type))];
-
-  const handleCheckboxChange = (type) => {
-    setSelectedEventTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-    );
-  };
-
-  const filteredLogs = logs.filter((log) => {
-    const matchesSearch =
-      log.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.event_type.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesEventType =
-      selectedEventTypes.length === 0 || selectedEventTypes.includes(log.event_type);
-
-    return matchesSearch && matchesEventType;
-  });
+  const filteredLogs = logs.filter(
+    (log) =>
+      (selectedTypes.length === 0 || selectedTypes.includes(log.event_type)) &&
+      (
+        log.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log.event_type.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+  );
 
   const sortedLogs = [...filteredLogs].sort((a, b) =>
     sortOrder === 'asc'
@@ -69,50 +80,47 @@ export default function Dashboard() {
 
   return (
     <div className="p-4 md:p-6 space-y-10 bg-gray-100 min-h-screen overflow-x-hidden">
+
+      {/* Filter + Search */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <input
+          type="text"
+          placeholder="Search by username or event type"
+          className="border px-4 py-2 rounded w-full md:w-1/2"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+
+        {/* Dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setShowDropdown(prev => !prev)}
+            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+          >
+            Filter Event Types ▼
+          </button>
+          {showDropdown && (
+            <div className="absolute mt-2 right-0 w-64 max-h-64 overflow-auto bg-white border shadow-lg rounded z-50">
+              {eventTypeOptions.map((type) => (
+                <label key={type} className="flex items-center px-4 py-2 hover:bg-gray-100">
+                  <input
+                    type="checkbox"
+                    checked={selectedTypes.includes(type)}
+                    onChange={() => toggleType(type)}
+                    className="mr-2"
+                  />
+                  {type}
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Logs Table */}
       <div className="bg-white shadow-lg rounded-xl p-4 md:p-6">
         <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">Detailed Logs Table</h2>
 
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-          <input
-            type="text"
-            placeholder="Search by username or event type"
-            className="border px-4 py-2 rounded w-full md:w-1/2"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-
-          {/* Dropdown Filter */}
-          <div className="relative">
-            <div
-              onClick={() => setDropdownOpen((prev) => !prev)}
-              className="cursor-pointer px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-            >
-              Filter Event Types
-            </div>
-
-            {dropdownOpen && (
-              <div className="absolute right-0 z-20 mt-2 w-64 bg-white border rounded shadow-md max-h-60 overflow-y-auto">
-                {eventTypes.map((type) => (
-                  <label
-                    key={type}
-                    className="flex items-center px-4 py-2 text-sm text-gray-800 hover:bg-gray-100"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedEventTypes.includes(type)}
-                      onChange={() => handleCheckboxChange(type)}
-                      className="form-checkbox mr-2"
-                    />
-                    {type}
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Logs Table */}
         <div className="overflow-x-auto border rounded-lg">
           <div className="max-h-[450px] overflow-y-auto overflow-x-hidden">
             <table className="min-w-full text-sm text-left text-gray-700 table-auto w-full">
