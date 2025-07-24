@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu } from 'lucide-react'; // You can also use any icon lib like react-icons
+import { Menu } from 'lucide-react';
 
 function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);

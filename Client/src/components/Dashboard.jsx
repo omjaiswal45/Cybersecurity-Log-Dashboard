@@ -54,7 +54,7 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="p-4 md:p-6 space-y-10 bg-gray-100 min-h-screen">
+    <div className="p-4 md:p-6 space-y-10 bg-gray-100 min-h-screen overflow-x-hidden">
 
       {/* Logs Table */}
       <div className="bg-white shadow-lg rounded-xl p-4 md:p-6">
@@ -107,7 +107,10 @@ export default function Dashboard() {
         {/* Pagination */}
         <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-2">
           <button
-            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+            onClick={() => {
+              setPage((prev) => Math.max(prev - 1, 1));
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             disabled={page === 1}
             className="px-4 py-2 bg-indigo-500 text-white rounded disabled:opacity-50"
           >
@@ -115,7 +118,10 @@ export default function Dashboard() {
           </button>
           <span className="text-gray-600">Page {page}</span>
           <button
-            onClick={() => setPage((prev) => (prev * limit < totalLogs ? prev + 1 : prev))}
+            onClick={() => {
+              setPage((prev) => (prev * limit < totalLogs ? prev + 1 : prev));
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             disabled={page * limit >= totalLogs}
             className="px-4 py-2 bg-indigo-500 text-white rounded disabled:opacity-50"
           >
@@ -141,9 +147,9 @@ export default function Dashboard() {
       </div>
 
       {/* Line Chart */}
-      <div className="bg-white shadow-lg rounded-xl p-4 h-110 md:p-6">
-     
-        <div className="w-full h-[400px] sm:h-[300px]">
+      <div className="bg-white shadow-lg rounded-xl p-4 md:p-6">
+        <h2 className="text-xl md:text-2xl font-bold mb-4">Events Trend Over Time</h2>
+        <div className="w-full h-[300px] sm:h-[350px]">
           <LineChartCard />
         </div>
       </div>

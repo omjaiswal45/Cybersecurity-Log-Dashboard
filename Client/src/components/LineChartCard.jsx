@@ -29,7 +29,7 @@ export default function LineChartCard() {
               month: 'short',
               hour: '2-digit',
               hour12: false,
-            }), // Example: "12 Jul, 10"
+            }),
           };
         })
         .sort((a, b) => a.dateObj - b.dateObj);
