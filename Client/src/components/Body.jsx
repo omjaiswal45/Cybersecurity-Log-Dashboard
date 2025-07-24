@@ -6,7 +6,7 @@ import Dashboard from './Dashboard';
 const Body = () => {
   return (
     <div className="flex flex-col md:flex-row min-h-screen">
-      <SIdebar />
+    <Sidebar />
       
       <div className="flex-1 flex flex-col">
         <Header />
