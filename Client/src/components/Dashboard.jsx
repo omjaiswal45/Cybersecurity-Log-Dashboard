@@ -11,17 +11,14 @@ import {
 } from 'recharts';
 import LineChartCard from './LineChartCard';
 import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import TablePagination from '@mui/material/TablePagination';
-
-dayjs.extend(relativeTime);
 
 export default function Dashboard() {
   const [logs, setLogs] = useState([]);
   const [eventCounts, setEventCounts] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('desc');
-  const [page, setPage] = useState(0); // 0-based for MUI
+  const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
   const [totalLogs, setTotalLogs] = useState(0);
 
@@ -34,7 +31,7 @@ export default function Dashboard() {
   }, [page, rowsPerPage]);
 
   const toggleSortOrder = () => {
-    setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'desc'));
+    setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
   };
 
   const barChartData = Object.entries(eventCounts).map(([eventType, count]) => ({
@@ -56,7 +53,6 @@ export default function Dashboard() {
 
   return (
     <div className="p-4 md:p-6 space-y-10 bg-gray-100 min-h-screen overflow-x-hidden">
-
       {/* Logs Table */}
       <div className="bg-white shadow-lg rounded-xl p-4 md:p-6">
         <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">Detailed Logs Table</h2>
@@ -91,7 +87,9 @@ export default function Dashboard() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {sortedLogs.map((log, index) => (
                   <tr key={index} className="hover:bg-indigo-50 transition duration-150 ease-in-out">
-                    <td className="px-4 py-2 border whitespace-nowrap">{dayjs(log.timestamp).fromNow()}</td>
+                    <td className="px-4 py-2 border whitespace-nowrap">
+                      {dayjs(log.timestamp).format('YYYY-MM-DD HH:mm')}
+                    </td>
                     <td className="px-4 py-2 border whitespace-nowrap">{log.event_type}</td>
                     <td className="px-4 py-2 border whitespace-nowrap">{log.username}</td>
                     <td className="px-4 py-2 border whitespace-nowrap hidden md:table-cell">{log.source_ip}</td>
