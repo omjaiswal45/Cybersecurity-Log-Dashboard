@@ -40,7 +40,7 @@ A full-stack web app for visualizing and analyzing SIEM logs.
   npm run dev
   
 - **Run the frontend:**
-  The frontend will be available at http://localhost:5173 (default Vite port), and the backend API at http://localhost:5000.
+  The frontend will be available at http://localhost:5173 , and the backend API at http://localhost:5000.
 
 ## License
 
