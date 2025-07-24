@@ -21,10 +21,9 @@ export default function Dashboard() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
   const [totalLogs, setTotalLogs] = useState(0);
-  const [selectedEventTypes, setSelectedEventTypes] = useState([]);
 
-  // Step 1: Extract unique event types from logs
-  const eventTypes = Array.from(new Set(logs.map((log) => log.event_type)));
+  const [selectedEventTypes, setSelectedEventTypes] = useState([]);
+  const [showEventFilter, setShowEventFilter] = useState(false);
 
   useEffect(() => {
     fetchLogs(page + 1, rowsPerPage).then((res) => {
@@ -38,7 +37,19 @@ export default function Dashboard() {
     setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
   };
 
-  // Step 2: Filter by search & event type checkboxes
+  const barChartData = Object.entries(eventCounts).map(([eventType, count]) => ({
+    eventType,
+    count,
+  }));
+
+  const eventTypes = [...new Set(logs.map((log) => log.event_type))];
+
+  const handleCheckboxChange = (type) => {
+    setSelectedEventTypes((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
+  };
+
   const filteredLogs = logs.filter((log) => {
     const matchesSearch =
       log.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -56,19 +67,6 @@ export default function Dashboard() {
       : new Date(b.timestamp) - new Date(a.timestamp)
   );
 
-  const barChartData = Object.entries(eventCounts).map(([eventType, count]) => ({
-    eventType,
-    count,
-  }));
-
-  const handleCheckboxChange = (eventType) => {
-    setSelectedEventTypes((prev) =>
-      prev.includes(eventType)
-        ? prev.filter((et) => et !== eventType)
-        : [...prev, eventType]
-    );
-  };
-
   return (
     <div className="p-4 md:p-6 space-y-10 bg-gray-100 min-h-screen overflow-x-hidden">
       {/* Logs Table */}
@@ -83,21 +81,32 @@ export default function Dashboard() {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
 
-        
-        <div className="mb-4 flex flex-wrap gap-4">
-          {eventTypes.map((type) => (
-            <label key={type} className="flex items-center gap-2 text-sm text-gray-700">
-              <input
-                type="checkbox"
-                checked={selectedEventTypes.includes(type)}
-                onChange={() => handleCheckboxChange(type)}
-                className="form-checkbox h-4 w-4 text-indigo-600"
-              />
-              {type}
-            </label>
-          ))}
-        </div>
+        {/* Toggle Button */}
+        <button
+          className="mb-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+          onClick={() => setShowEventFilter((prev) => !prev)}
+        >
+          {showEventFilter ? 'Hide Event Filters' : 'Filter Event Types'}
+        </button>
 
+        {/* Checkboxes */}
+        {showEventFilter && (
+          <div className="mb-4 flex flex-wrap gap-4">
+            {eventTypes.map((type) => (
+              <label key={type} className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={selectedEventTypes.includes(type)}
+                  onChange={() => handleCheckboxChange(type)}
+                  className="form-checkbox h-4 w-4 text-indigo-600"
+                />
+                {type}
+              </label>
+            ))}
+          </div>
+        )}
+
+        {/* Logs Table */}
         <div className="overflow-x-auto border rounded-lg">
           <div className="max-h-[450px] overflow-y-auto overflow-x-hidden">
             <table className="min-w-full text-sm text-left text-gray-700 table-auto w-full">
