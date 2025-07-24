@@ -95,7 +95,7 @@ export default function Dashboard() {
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setShowDropdown(prev => !prev)}
-            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 cursor-pointer"
           >
             Filter Event Types ▼
           </button>
