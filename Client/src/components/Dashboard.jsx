@@ -149,7 +149,7 @@ export default function Dashboard() {
       {/* Line Chart */}
       <div className="bg-white shadow-lg rounded-xl p-4 md:p-6">
         <h2 className="text-xl md:text-2xl font-bold mb-4">Events Trend Over Time</h2>
-        <div className="w-full h-[300px] sm:h-[350px]">
+        <div className="w-full h-[400px] sm:h-[400px]">
           <LineChartCard />
         </div>
       </div>
