@@ -12,6 +12,7 @@ import {
 import LineChartCard from './LineChartCard';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import TablePagination from '@mui/material/TablePagination';
 
 dayjs.extend(relativeTime);
 
@@ -20,20 +21,20 @@ export default function Dashboard() {
   const [eventCounts, setEventCounts] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('desc');
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0); // 0-based for MUI
+  const [rowsPerPage, setRowsPerPage] = useState(20);
   const [totalLogs, setTotalLogs] = useState(0);
-  const limit = 20;
 
   useEffect(() => {
-    fetchLogs(page, limit).then((res) => {
+    fetchLogs(page + 1, rowsPerPage).then((res) => {
       setLogs(res.data.logs);
       setTotalLogs(res.data.total);
     });
     fetchEventCounts().then((res) => setEventCounts(res.data));
-  }, [page]);
+  }, [page, rowsPerPage]);
 
   const toggleSortOrder = () => {
-    setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'desc'));
   };
 
   const barChartData = Object.entries(eventCounts).map(([eventType, count]) => ({
@@ -68,7 +69,6 @@ export default function Dashboard() {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
 
-        {/* Responsive Table with Vertical Scroll and No Horizontal Scroll */}
         <div className="overflow-x-auto border rounded-lg">
           <div className="max-h-[450px] overflow-y-auto overflow-x-hidden">
             <table className="min-w-full text-sm text-left text-gray-700 table-auto w-full">
@@ -105,28 +105,23 @@ export default function Dashboard() {
         </div>
 
         {/* Pagination */}
-        <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-2">
-          <button
-            onClick={() => {
-              setPage((prev) => Math.max(prev - 1, 1));
+        <div className="mt-4">
+          <TablePagination
+            component="div"
+            count={totalLogs}
+            page={page}
+            onPageChange={(event, newPage) => {
+              setPage(newPage);
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            disabled={page === 1}
-            className="px-4 py-2 bg-indigo-500 text-white rounded disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <span className="text-gray-600">Page {page}</span>
-          <button
-            onClick={() => {
-              setPage((prev) => (prev * limit < totalLogs ? prev + 1 : prev));
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={(event) => {
+              setRowsPerPage(parseInt(event.target.value, 10));
+              setPage(0);
             }}
-            disabled={page * limit >= totalLogs}
-            className="px-4 py-2 bg-indigo-500 text-white rounded disabled:opacity-50"
-          >
-            Next
-          </button>
+            rowsPerPageOptions={[10, 20, 50, 100]}
+            labelRowsPerPage="Logs per page"
+          />
         </div>
       </div>
 
@@ -148,7 +143,6 @@ export default function Dashboard() {
 
       {/* Line Chart */}
       <div className="bg-white shadow-lg rounded-xl p-4 md:p-6">
-        <h2 className="text-xl md:text-2xl font-bold mb-4">Events Trend Over Time</h2>
         <div className="w-full h-[400px] sm:h-[400px]">
           <LineChartCard />
         </div>
