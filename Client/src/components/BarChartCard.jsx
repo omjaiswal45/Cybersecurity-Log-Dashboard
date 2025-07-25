@@ -22,8 +22,20 @@ export default function BarChartCard() {
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="eventType" />
-          <YAxis />
+         <XAxis 
+        dataKey="eventType" 
+       angle={-35} 
+       textAnchor="end"
+      interval={0} 
+/>
+      <YAxis
+  label={{
+    value: 'Access Count',   // <-- This is the Y-axis label text
+    angle: -90,
+    position: 'insideLeft',
+    style: { textAnchor: 'middle', fill: '#4B5563', fontSize: 12 },
+  }}
+/>
           <Tooltip />
           <Bar dataKey="count" fill="#4F46E5" />
         </BarChart>
