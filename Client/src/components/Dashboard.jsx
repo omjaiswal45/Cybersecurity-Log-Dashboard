@@ -99,12 +99,13 @@ export default function Dashboard() {
 
         {/* Dropdown */}
         <div className="relative" ref={dropdownRef}>
-          <button
-            onClick={() => setShowDropdown(prev => !prev)}
-            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 cursor-pointer"
-          >
-            Filter Event Types <FunnelIcon className="w-5 h-5 text-gray-500" />
-          </button>
+         <button
+  onClick={() => setShowDropdown(prev => !prev)}
+  className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 cursor-pointer flex items-center gap-2"
+>
+  <span>Event Types</span>
+  <FunnelIcon className="w-5 h-5 text-white" />
+</button>
           {showDropdown && (
             <div className="absolute mt-2 right-0 w-64 max-h-64 overflow-auto bg-white border shadow-lg rounded z-50">
               {eventTypeOptions.map((type) => (
@@ -203,6 +204,7 @@ export default function Dashboard() {
 
       {/* Line Chart */}
       <div className="bg-white shadow-lg rounded-xl p-4 md:p-6">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-7">Events Trend Over Time</h2>
         <div className="w-full h-[400px] sm:h-[400px]">
           <LineChartCard />
         </div>
