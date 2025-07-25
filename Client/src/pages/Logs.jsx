@@ -1,8 +1,8 @@
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { fetchLogs } from '../services/api';
 import TablePagination from '@mui/material/TablePagination';
 import dayjs from 'dayjs';
+import { FunnelIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 const Logs = () => {
   const [logs, setLogs] = useState([]);
@@ -11,22 +11,48 @@ const Logs = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
   const [totalLogs, setTotalLogs] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  const [selectedTypes, setSelectedTypes] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
+    setLoading(true);
     fetchLogs(page + 1, rowsPerPage).then((res) => {
       setLogs(res.data.logs);
       setTotalLogs(res.data.total);
+      setLoading(false);
     });
   }, [page, rowsPerPage]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const toggleSortOrder = () => {
     setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
   };
 
+  const eventTypeOptions = [...new Set(logs.map((log) => log.event_type))];
+
+  const toggleType = (type) => {
+    setSelectedTypes((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
+  };
+
   const filteredLogs = logs.filter(
     (log) =>
-      log.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.event_type.toLowerCase().includes(searchTerm.toLowerCase())
+      (selectedTypes.length === 0 || selectedTypes.includes(log.event_type)) &&
+      (log.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log.event_type.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const sortedLogs = [...filteredLogs].sort((a, b) =>
@@ -37,50 +63,88 @@ const Logs = () => {
 
   return (
     <div className="p-4 md:p-6 bg-gray-100 min-h-screen overflow-x-hidden space-y-8">
-      <h2 className="text-2xl font-bold text-gray-800">Security Logs</h2>
+      <h2 className="text-2xl font-bold text-green-700">Security Logs</h2>
 
-      <input
-        type="text"
-        placeholder="Search by username or event type"
-        className="border px-4 py-2 rounded w-full max-w-md"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
+      {/* Filter and Search */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="relative w-full md:w-1/2">
+          <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Search by username or event type"
+            className="pl-10 pr-4 py-2 border rounded w-full"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
 
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setShowDropdown((prev) => !prev)}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 cursor-pointer flex items-center gap-2"
+          >
+            <span>Event Types</span>
+            <FunnelIcon className="w-5 h-5 text-white" />
+          </button>
+          {showDropdown && (
+            <div className="absolute mt-2 right-0 w-64 max-h-64 overflow-auto bg-white border shadow-lg rounded z-50">
+              {eventTypeOptions.map((type) => (
+                <label key={type} className="flex items-center px-4 py-2 hover:bg-gray-100">
+                  <input
+                    type="checkbox"
+                    checked={selectedTypes.includes(type)}
+                    onChange={() => toggleType(type)}
+                    className="mr-2"
+                  />
+                  {type}
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Logs Table */}
       <div className="overflow-x-auto border rounded-lg bg-white shadow">
         <div className="max-h-[450px] overflow-y-auto overflow-x-hidden">
-          <table className="min-w-full text-sm text-left text-gray-700 table-auto w-full">
-            <thead className="bg-indigo-100 text-indigo-800 sticky top-0 z-10">
-              <tr>
-                <th
-                  className="px-4 py-3 cursor-pointer select-none flex items-center gap-1 text-indigo-800 font-medium whitespace-nowrap"
-                  onClick={toggleSortOrder}
-                >
-                  Timestamp
-                  <span className="p-1">{sortOrder === 'asc' ? '▲' : '▼'}</span>
-                </th>
-                <th className="px-4 py-3 border whitespace-nowrap">Event Type</th>
-                <th className="px-4 py-3 border whitespace-nowrap">Username</th>
-                <th className="px-4 py-3 border whitespace-nowrap hidden md:table-cell">Source IP</th>
-                <th className="px-4 py-3 border whitespace-nowrap hidden md:table-cell">Destination IP</th>
-                <th className="px-4 py-3 border whitespace-nowrap hidden lg:table-cell">Details</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {sortedLogs.map((log, index) => (
-                <tr key={index} className="hover:bg-indigo-50 transition duration-150 ease-in-out">
-                  <td className="px-4 py-2 border whitespace-nowrap">
-                    {dayjs(log.timestamp).format('YYYY-MM-DD HH:mm')}
-                  </td>
-                  <td className="px-4 py-2 border whitespace-nowrap">{log.event_type}</td>
-                  <td className="px-4 py-2 border whitespace-nowrap">{log.username}</td>
-                  <td className="px-4 py-2 border whitespace-nowrap hidden md:table-cell">{log.source_ip}</td>
-                  <td className="px-4 py-2 border whitespace-nowrap hidden md:table-cell">{log.destination_ip}</td>
-                  <td className="px-4 py-2 border whitespace-nowrap hidden lg:table-cell">{log.details}</td>
+          {loading ? (
+            <div className="flex justify-center items-center h-[300px]">
+              <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <table className="min-w-full text-sm text-left text-gray-700 table-auto w-full">
+              <thead className="bg-green-100 text-green-800 sticky top-0 z-10">
+                <tr>
+                  <th
+                    className="px-4 py-3 cursor-pointer select-none flex items-center gap-1 text-green-800 font-medium whitespace-nowrap"
+                    onClick={toggleSortOrder}
+                  >
+                    Timestamp
+                    <span className="p-1">{sortOrder === 'asc' ? '▲' : '▼'}</span>
+                  </th>
+                  <th className="px-4 py-3 border whitespace-nowrap">Event Type</th>
+                  <th className="px-4 py-3 border whitespace-nowrap">Username</th>
+                  <th className="px-4 py-3 border whitespace-nowrap hidden md:table-cell">Source IP</th>
+                  <th className="px-4 py-3 border whitespace-nowrap hidden md:table-cell">Destination IP</th>
+                  <th className="px-4 py-3 border whitespace-nowrap hidden lg:table-cell">Details</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {sortedLogs.map((log, index) => (
+                  <tr key={index} className="hover:bg-green-50 transition duration-150 ease-in-out">
+                    <td className="px-4 py-2 border whitespace-nowrap">
+                      {dayjs(log.timestamp).format('YYYY-MM-DD HH:mm')}
+                    </td>
+                    <td className="px-4 py-2 border whitespace-nowrap">{log.event_type}</td>
+                    <td className="px-4 py-2 border whitespace-nowrap">{log.username}</td>
+                    <td className="px-4 py-2 border whitespace-nowrap hidden md:table-cell">{log.source_ip}</td>
+                    <td className="px-4 py-2 border whitespace-nowrap hidden md:table-cell">{log.destination_ip}</td>
+                    <td className="px-4 py-2 border whitespace-nowrap hidden lg:table-cell">{log.details}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 
