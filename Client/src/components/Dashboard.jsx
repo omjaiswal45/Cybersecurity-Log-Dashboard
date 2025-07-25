@@ -12,9 +12,7 @@ import {
 import LineChartCard from './LineChartCard';
 import dayjs from 'dayjs';
 import TablePagination from '@mui/material/TablePagination';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { FunnelIcon } from '@heroicons/react/24/outline';
-
+import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 
 export default function Dashboard() {
   const [logs, setLogs] = useState([]);
@@ -24,21 +22,22 @@ export default function Dashboard() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
   const [totalLogs, setTotalLogs] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Filter dropdown state
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
+    setIsLoading(true);
     fetchLogs(page + 1, rowsPerPage).then((res) => {
       setLogs(res.data.logs);
       setTotalLogs(res.data.total);
+      setIsLoading(false);
     });
     fetchEventCounts().then((res) => setEventCounts(res.data));
   }, [page, rowsPerPage]);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -86,26 +85,27 @@ export default function Dashboard() {
 
       {/* Filter + Search */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        {/* Search Box */}
         <div className="relative w-full md:w-1/2">
-  <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-  <input
-    type="text"
-    placeholder="Search by username or event type"
-    className="pl-10 pr-4 py-2 border rounded w-full"
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-  />
-</div>
+          <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Search by username or event type"
+            className="pl-10 pr-4 py-2 border rounded w-full"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
 
-        {/* Dropdown */}
+        {/* Dropdown Filter */}
         <div className="relative" ref={dropdownRef}>
-         <button
-  onClick={() => setShowDropdown(prev => !prev)}
-  className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 cursor-pointer flex items-center gap-2"
->
-  <span>Event Types</span>
-  <FunnelIcon className="w-5 h-5 text-white" />
-</button>
+          <button
+            onClick={() => setShowDropdown(prev => !prev)}
+            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 cursor-pointer flex items-center gap-2"
+          >
+            <span>Event Types</span>
+            <FunnelIcon className="w-5 h-5 text-white" />
+          </button>
           {showDropdown && (
             <div className="absolute mt-2 right-0 w-64 max-h-64 overflow-auto bg-white border shadow-lg rounded z-50">
               {eventTypeOptions.map((type) => (
@@ -148,18 +148,29 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {sortedLogs.map((log, index) => (
-                  <tr key={index} className="hover:bg-indigo-50 transition duration-150 ease-in-out">
-                    <td className="px-4 py-2 border whitespace-nowrap">
-                      {dayjs(log.timestamp).format('YYYY-MM-DD HH:mm')}
+                {isLoading ? (
+                  <tr>
+                    <td colSpan="6" className="text-center py-10">
+                      <div className="flex justify-center items-center gap-2">
+                        <div className="w-6 h-6 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                        <span className="text-indigo-700 font-medium">Loading logs...</span>
+                      </div>
                     </td>
-                    <td className="px-4 py-2 border whitespace-nowrap">{log.event_type}</td>
-                    <td className="px-4 py-2 border whitespace-nowrap">{log.username}</td>
-                    <td className="px-4 py-2 border whitespace-nowrap hidden md:table-cell">{log.source_ip}</td>
-                    <td className="px-4 py-2 border whitespace-nowrap hidden md:table-cell">{log.destination_ip}</td>
-                    <td className="px-4 py-2 border whitespace-nowrap hidden lg:table-cell">{log.details}</td>
                   </tr>
-                ))}
+                ) : (
+                  sortedLogs.map((log, index) => (
+                    <tr key={index} className="hover:bg-indigo-50 transition duration-150 ease-in-out">
+                      <td className="px-4 py-2 border whitespace-nowrap">
+                        {dayjs(log.timestamp).format('YYYY-MM-DD HH:mm')}
+                      </td>
+                      <td className="px-4 py-2 border whitespace-nowrap">{log.event_type}</td>
+                      <td className="px-4 py-2 border whitespace-nowrap">{log.username}</td>
+                      <td className="px-4 py-2 border whitespace-nowrap hidden md:table-cell">{log.source_ip}</td>
+                      <td className="px-4 py-2 border whitespace-nowrap hidden md:table-cell">{log.destination_ip}</td>
+                      <td className="px-4 py-2 border whitespace-nowrap hidden lg:table-cell">{log.details}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
