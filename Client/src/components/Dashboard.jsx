@@ -12,6 +12,9 @@ import {
 import LineChartCard from './LineChartCard';
 import dayjs from 'dayjs';
 import TablePagination from '@mui/material/TablePagination';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { FunnelIcon } from '@heroicons/react/24/outline';
+
 
 export default function Dashboard() {
   const [logs, setLogs] = useState([]);
@@ -83,13 +86,16 @@ export default function Dashboard() {
 
       {/* Filter + Search */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <input
-          type="text"
-          placeholder="Search by username or event type"
-          className="border px-4 py-2 rounded w-full md:w-1/2"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div className="relative w-full md:w-1/2">
+  <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+  <input
+    type="text"
+    placeholder="Search by username or event type"
+    className="pl-10 pr-4 py-2 border rounded w-full"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+</div>
 
         {/* Dropdown */}
         <div className="relative" ref={dropdownRef}>
@@ -97,7 +103,7 @@ export default function Dashboard() {
             onClick={() => setShowDropdown(prev => !prev)}
             className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 cursor-pointer"
           >
-            Filter Event Types ▼
+            Filter Event Types <FunnelIcon className="w-5 h-5 text-gray-500" />
           </button>
           {showDropdown && (
             <div className="absolute mt-2 right-0 w-64 max-h-64 overflow-auto bg-white border shadow-lg rounded z-50">
