@@ -1,22 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { fetchLogs, fetchEventCounts } from '../services/api';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
+import { fetchLogs } from '../services/api';
 import LineChartCard from './LineChartCard';
+import BarChartCard from './BarChartCard';
 import dayjs from 'dayjs';
 import TablePagination from '@mui/material/TablePagination';
 import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 
 export default function Dashboard() {
   const [logs, setLogs] = useState([]);
-  const [eventCounts, setEventCounts] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('desc');
   const [page, setPage] = useState(0);
@@ -35,7 +26,6 @@ export default function Dashboard() {
       setTotalLogs(res.data.total);
       setIsLoading(false);
     });
-    fetchEventCounts().then((res) => setEventCounts(res.data));
   }, [page, rowsPerPage]);
 
   useEffect(() => {
@@ -60,11 +50,6 @@ export default function Dashboard() {
     );
   };
 
-  const barChartData = Object.entries(eventCounts).map(([eventType, count]) => ({
-    eventType,
-    count,
-  }));
-
   const filteredLogs = logs.filter(
     (log) =>
       (selectedTypes.length === 0 || selectedTypes.includes(log.event_type)) &&
@@ -82,6 +67,7 @@ export default function Dashboard() {
 
   return (
     <div className="p-4 md:p-6 space-y-10 bg-green-50 min-h-screen overflow-x-hidden">
+
       {/* Filter + Search */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="relative w-full md:w-1/2">
@@ -188,28 +174,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Bar Chart */}
-      <div className="bg-white shadow-lg rounded-xl p-4 md:p-6">
-        <h2 className="text-xl md:text-2xl font-bold text-green-700 mb-4">Event Type Frequency</h2>
-        <div className="w-full h-[250px] sm:h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={barChartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-  dataKey="eventType"
-  interval={0}
-  angle={-45}
-  textAnchor="end"
-  height={70}
-  tick={{ fontSize: 10, fill: '#374151' }}
-/>
-              <YAxis allowDecimals={false} />
-              <Tooltip />
-              <Bar dataKey="count" fill="#10B981" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+      {/* Bar Chart*/}
+      <BarChartCard />
 
       {/* Line Chart */}
       <div className="bg-white shadow-lg rounded-xl p-4 md:p-6">
