@@ -154,24 +154,30 @@ export default function Dashboard() {
         </div>
 
         {/* Pagination */}
-        <div className="mt-4">
-          <TablePagination
-            component="div"
-            count={totalLogs}
-            page={page}
-            onPageChange={(event, newPage) => {
-              setPage(newPage);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={(event) => {
-              setRowsPerPage(parseInt(event.target.value, 10));
-              setPage(0);
-            }}
-            rowsPerPageOptions={[10, 20, 50, 100]}
-            labelRowsPerPage="Logs per page"
-          />
-        </div>
+       
+<div className="mt-4 flex items-center justify-between flex-wrap gap-2">
+  <div className="text-sm text-gray-600">
+    Page {page + 1} of {Math.ceil(totalLogs / rowsPerPage)}
+  </div>
+
+  <TablePagination
+    component="div"
+    count={totalLogs}
+    page={page}
+    onPageChange={(event, newPage) => {
+      setPage(newPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }}
+    rowsPerPage={rowsPerPage}
+    onRowsPerPageChange={(event) => {
+      setRowsPerPage(parseInt(event.target.value, 10));
+      setPage(0);
+    }}
+    rowsPerPageOptions={[10, 20, 50, 100]}
+    labelRowsPerPage="Logs per page"
+  />
+</div>
+
       </div>
 
       {/* Bar Chart*/}
