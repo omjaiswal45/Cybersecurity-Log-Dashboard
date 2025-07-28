@@ -195,7 +195,14 @@ export default function Dashboard() {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={barChartData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="eventType" />
+              <XAxis
+  dataKey="eventType"
+  interval={0}
+  angle={-45}
+  textAnchor="end"
+  height={70}
+  tick={{ fontSize: 10, fill: '#374151' }}
+/>
               <YAxis allowDecimals={false} />
               <Tooltip />
               <Bar dataKey="count" fill="#10B981" radius={[6, 6, 0, 0]} />
