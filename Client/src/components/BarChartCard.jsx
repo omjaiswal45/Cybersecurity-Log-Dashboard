@@ -21,7 +21,7 @@ export default function BarChartCard() {
       <h3 className="text-lg font-semibold mb-4">Event Type Frequency</h3>
    <ResponsiveContainer width="100%" height="100%">
   <BarChart
-    data={barChartData}
+  data={data}
     margin={{ top: 10, right: 30, left: 10, bottom: 60 }}
   >
     <CartesianGrid strokeDasharray="3 3" />
